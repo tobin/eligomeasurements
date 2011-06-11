@@ -15,6 +15,11 @@ data = textread(filename, '', 'commentstyle', 'shell');
 loaded_calib_f = data(:,1);
 loaded_calib = 10.^(data(:,2)/20) .* exp(1i*data(:,3)*pi/180);
 
-calib = interp1(loaded_calib_f, loaded_calib, f, 'linear');
+if ~isempty(f),
+    calib = interp1(loaded_calib_f, loaded_calib, f, 'linear');
+else
+    calib = loaded_calib;
+    f = loaded_calib_f;
+end
 
 end
