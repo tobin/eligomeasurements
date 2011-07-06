@@ -1,4 +1,4 @@
-function msmts = load_laserAM_L1()
+function msmts = load_laserAM_L1(msmt_root)
 % Return a struct array containing the measured transfer functions from
 % laser AM to DC readout
 
