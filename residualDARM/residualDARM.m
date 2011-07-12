@@ -22,7 +22,7 @@ else
     % just one ifo
     fprintf('ifo = %s\n', ifo);
     
-    [data, rate] = load_strain_timeseries(ifo);
+    [data, rate] = load_DARMERR_timeseries(ifo);
     [Pxx, f] = make_spectrum(data, rate);
     
     % delete the high frequency stuff to get rid of the unphysical
@@ -31,10 +31,10 @@ else
     Pxx(kk) = [];
     f(kk)   = [];
     
-    G = get_OLG(ifo, f);
-    
-    calibrated = 3995 * sqrt(Pxx);
-    residual = calibrated ./ abs(1 - G);
+    [G, S] = get_OLG(ifo, f);    
+   
+    residual = sqrt(Pxx) ./ abs(S);     
+    calibrated = residual .* abs(1 - G);
     rms = ampSpectrumRMS(f.', residual.');  % this is in mattlib
     
     % Copy to output argument
@@ -46,8 +46,10 @@ end
 
 end
 
-%% Load DARM OLG
-function G = get_OLG(ifo, f)
+%% Load DARM OLG and Sensing Function
+function [G, S] = get_OLG(ifo, f)
+% [G, S] = get_OLG(ifo, f)
+% returns DARM OLG and DARM sensing function
 calib_path = '/data/dtt/Calibration/CVS/calibration/';
 if ~exist('DARMmodel','file'),
     fprintf('adding some things to the path\n');
@@ -62,27 +64,34 @@ switch ifo
     case 'H1'
         calib_ifo_model = H1DARMparams_942450950;
 end
-[G,~,~,~,~,~,~,~,~,~] = DARMmodel(calib_ifo_model, f);
+[G,S,~,~,~,~,~,~,~,~] = DARMmodel(calib_ifo_model, f);
 end
 
-%% Load h(t) data
-function [data, rate] = load_strain_timeseries(ifo)
-switch ifo
-    case 'H1'
-        filename = 'H1-STRAIN-962268780.bin';
-    case 'L1'
-        filename = 'L1-STRAIN-965543700.bin';
-end
+%% Load DARM_ERR data
+function [data, rate] = load_DARMERR_timeseries(ifo)
+server = 'ldas-pcdev1.ligo.caltech.edu:31200';
+% really, we would prefer to have a 'typical' time, but for now:
+t0 = 965543700;  % Aug 11 2010 06:34:45 UTC -- best L1 range
+dur = 128; 
 
-fd = fopen(filename, 'r');
-data = fread(fd, inf, 'double');
-rate = 16384;
-fclose(fd);
+filename = sprintf('DARMERR-%s-%d-%d.mat', ifo, t0, dur);
+
+if ~exist(filename, 'file')
+    fprintf('Getting %d s of data from t0=%d using NDS2...\n', dur, t0);
+    data = NDS2_GetData({[ifo ':LSC-DARM_ERR']}, t0, dur, server);
+    save(filename, 'data');
+end
+load(filename, 'data');
+if ~strcmp(data(1).name, [ifo ':LSC-DARM_ERR'])
+    error('unexpected channel name');
+end
+rate = double(data(1).rate);
+data = double(data(1).data);
 end
 
 %% Make a power spectrum
 function [Pxx, f] = make_spectrum(data, rate)
-bw = 2;  % resolution [Hz]
+bw = 0.5;  % resolution [Hz]
 nfft = 2^nextpow2(rate/bw);
 [Pxx, f] =  pwelch(detrend(data), hanning(nfft), nfft/2, nfft, rate);
 end
