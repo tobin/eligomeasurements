@@ -2,8 +2,10 @@ function msmts = load_laserAM_L1(msmt_root)
 % Return a struct array containing the measured transfer functions from
 % laser AM to DC readout
 
+d = [msmt_root 'DCnoisecouplings/ISS/L1/2010-04-27/'];
+
 % if we were smarter, we would read these directly from the xml files
-file_prefix = 'tf_ISS_sweep_x0=';
+file_prefix = [d 'tf_ISS_sweep_x0='];
 
 filenames = {'-15B.txt',  '15C.txt', '-20.txt', '5.txt',  '-10.txt', ...
     '15B.txt',  '15D.txt',  '20.txt', '10.txt', '-15C.txt', ...
@@ -26,7 +28,8 @@ function msmt = load_laserAM_msmt_file(filename)
 ISS_Calib = (1/1000)*(1/17486);
 
 % parse the filename to get the offset
-offset = sscanf(filename, 'tf_ISS_sweep_x0=%d[A-Z]*.txt');
+[~, filename_name, ~] = fileparts(filename);
+offset = sscanf(filename_name, 'tf_ISS_sweep_x0=%d[A-Z]*.txt');
 data = dlmread(filename);
 
 f = data(:,1);
