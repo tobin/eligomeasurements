@@ -13,6 +13,11 @@ switch ifo
         msmts.laserAM = load_laserAM_L1(msmt_root);
         [ msmts.laserFM, msmts.CARMloop] = load_laserFM_L1(msmt_root);
         [ msmts.oscAM, msmts.oscPM] = load_osc_L1(msmt_root);
+    case 'H1'
+        msmts.laserAM = load_laserAM_H1(msmt_root);
+        msmts.laserFM = load_laserFM_H1(msmt_root);
+        msmts.oscAM   = load_oscAM_H1(msmt_root);
+        msmts.oscPM   = load_oscPM_H1(msmt_root);
     otherwise
         error(['Don''t know where to find measurements for ' ifo])
 end

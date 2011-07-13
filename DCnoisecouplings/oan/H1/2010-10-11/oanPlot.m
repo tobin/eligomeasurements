@@ -1,6 +1,6 @@
 % make oscillator amplitude noise plots.
 
-load('../../DARMcalib.mat')
+load('../../../DARMcalib.mat')
 load('../SBint_cal.mat')
 
 clear dataStructure;

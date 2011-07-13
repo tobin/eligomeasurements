@@ -1,6 +1,6 @@
 % make ISS plots.
 
-load('../../DARMcalib.mat')
+load('../../../DARMcalib.mat')
 load('../OLMONcalib.mat')
 
 clear dataStructure;

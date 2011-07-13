@@ -1,6 +1,6 @@
 % make oscillator phase noise plots.
 
-load('../../DARMcalib.mat')
+load('../../../DARMcalib.mat')
 load('../phimod_cal.mat')
 
 clear dataStructure;
