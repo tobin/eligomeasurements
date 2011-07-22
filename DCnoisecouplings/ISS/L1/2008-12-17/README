@@ -1,0 +1,26 @@
+-------------------------------------------------------------------------
+[2008-12-17]     laser amplitude noise coupling to DARM in RF and DC
+-------------------------------------------------------------------------
+
+On Friday night we made measurements of the coupling of laser
+amplitude (intensity) noise to DARM in an RF lock and in DC locks with
+DARM offsets in both directions. These measurements were made by
+injecting broadband noise into the laser intensity stabilization servo
+(ISS) excitation (error) point, and then computing the transfer
+function from the ISS monitor photodiode to DARM, correcting for both
+the DARM_ERR calibration and the whitening of the ISS monitor
+photodiode.
+
+The scripts and data files from this measurement are located in
+/data/dtt/tf/notebook/2008/12/12: noisetf.m, plot_olgans.m,
+rf-iss-coupling.mat, dc-iss-coupling.mat,
+dc-iss-coupling-negativeoffset.mat. The measurement times were
+2008-12-12 18:59 (CST) RF, 2008-12-13 01:30 +DC, 02:45 -DC. In both DC
+measurements there were 4500 counts DC on the TRANS PDs
+(combined). The mean of ISS-ILMONPD_NW was 18410 counts.
+
+http://ilog.ligo-la.caltech.edu/ilog/pub/ilog.cgi?group=detector&date_to_view=12/17/2008&anchor_to_scroll_to=2008:12:18:00:42:03-fricke
+
+-------------------------------------------------------------------------
+Scripts and time-series data in /data/dtt/tf/notebook/2008/12/12
+-------------------------------------------------------------------------
