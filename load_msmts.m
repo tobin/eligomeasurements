@@ -10,7 +10,8 @@ function msmts = load_msmts(msmt_root, ifo)
 
 switch ifo
     case 'L1'
-        msmts.laserAM = load_laserAM_L1(msmt_root);
+        msmts.laserAM = [ load_laserAM_L1(msmt_root) ...
+                          load_laserAM_L1_20081217(msmt_root)];
         [ msmts.laserFM, msmts.CARMloop] = load_laserFM_L1(msmt_root);
         [ msmts.oscAM, msmts.oscPM] = load_osc_L1(msmt_root);
     case 'H1'
