@@ -34,7 +34,7 @@ else
     [G, S] = get_OLG(ifo, f);    
    
     residual = sqrt(Pxx) ./ abs(S);     
-    calibrated = residual .* abs(1 - G);
+    calibrated = residual .* abs(1 + G);
     rms = ampSpectrumRMS(f.', residual.');  % this is in mattlib
     
     % Copy to output argument
@@ -91,7 +91,7 @@ end
 
 %% Make a power spectrum
 function [Pxx, f] = make_spectrum(data, rate)
-bw = 0.5;  % resolution [Hz]
+bw = 0.1;  % resolution [Hz]
 nfft = 2^nextpow2(rate/bw);
 [Pxx, f] =  pwelch(detrend(data), hanning(nfft), nfft/2, nfft, rate);
 end

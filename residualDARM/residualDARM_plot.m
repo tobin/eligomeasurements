@@ -17,19 +17,28 @@ colors.L1 = [0,1,0]/2;
 cla
 
 % no need to have so many points
-f = logspace(log10(rslt.f(2)), log10(rslt.f(end)), 300);
-calibrated = spec_rebin(rslt.f, rslt.calibrated.^2, f).^(1/2);
-residual   = spec_rebin(rslt.f, rslt.residual.^2,   f).^(1/2);
-rms        = spec_rebin(rslt.f, rslt.rms.^2,        f).^(1/2);
+doRebinSpectrum = false;
+if doRebinSpectrum
+    f = logspace(log10(rslt.f(2)), log10(rslt.f(end)), 300);
+    calibrated = spec_rebin(rslt.f, rslt.calibrated.^2, f).^(1/2);
+    residual   = spec_rebin(rslt.f, rslt.residual.^2,   f).^(1/2);
+    rms        = spec_rebin(rslt.f, rslt.rms.^2,        f).^(1/2);
+else
+    f = rslt.f;
+    calibrated = rslt.calibrated;
+    residual = rslt.residual;
+    rms = rslt.rms;
+end
+
 
 % Plot
 loglog(f, calibrated, ...
-       '--', 'color', (colors.(ifo) + [1,1,1])/2, 'linewidth', 2);
+       '-', 'color', (colors.(ifo) + [1,1,1])/2, 'linewidth', 2);
 hold all
 loglog(f, residual, ...
        '-',  'color', colors.(ifo),   'linewidth', 2);
 loglog(f, rms, ...
-       ':',  'color', colors.(ifo)/2, 'linewidth', 2);
+       '-',  'color', 'k', 'linewidth', 1);
 hold off
 %%
 axis tight
@@ -38,7 +47,7 @@ L = legend('loop-corrected displacement', ...
        'integrated RMS','Interpreter', 'none');
 set(L, 'box', 'off');
 
-title('DARM spectrum');
+%title('DARM spectrum');
 xlabel('frequency [Hz]');
 ylabel('m/\sqrt{Hz}');
 
@@ -49,10 +58,15 @@ if doOverZealousCropping
         get(gca, 'TightInset') * [-1 0 1 0; 0 -1 0 1; 0 0 1 0; 0 0 0 1]);
 end
 
-set(gcf, 'PaperUnits', 'inches', ...);
-         'PaperSize',         [3.5 2], ...
-         'PaperPositionMode', 'manual', ...
-         'PaperPosition', [0 0 3.5 2]);
+ylim([1e-20 1e-6]);
+set(gca, 'YTick', 10.^(-20:-6));  % For Kissel comparison
+orient landscape
+
+% 
+% set(gcf, 'PaperUnits', 'inches', ...);
+%          'PaperSize',         [3.5 2], ...
+%          'PaperPositionMode', 'manual', ...
+%          'PaperPosition', [0 0 3.5 2]);
 
 %% Make PDF
 
