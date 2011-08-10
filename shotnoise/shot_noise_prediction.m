@@ -87,7 +87,7 @@ lambda = 1064e-9;             % wavelength [m]
 if strcmp(ifo, 'H1'),     
     rcp = 137;                % arm cavity phase gain      tradition
     fc  = 85.6;               % arm cavity pole            H1DARMparams_942450950.m
-    gcr = sqrt(36);           % carrier recycling gain     ilog 2008-12-14           
+    gcr = sqrt(59);           % carrier recycling gain     ilog 2008-12-14           
     input_eff =  ...          % input power efficiency     
        besselj(0,0.34)^2* ... % carrier fraction           ilog 2008-11-18
                  0.82 * ...   % Input optics efficiency    LIGO-P1100056
@@ -157,7 +157,7 @@ set([gca; findall(gca, 'Type','text')], 'FontSize', 16);
 
 if strcmp(ifo, 'H1'),
     text(0.513382, 0.104736, ...
-        sprintf('OMC MM = %0.2f\n', omc_mm), ...
+        sprintf('OMC MM = %0.2f\nOMC T = %0.2f', omc_mm, omc_trans), ...
         'fontsize', 24, 'units', 'normalized');
 end
 
