@@ -26,6 +26,10 @@ elseif strcmp(ifo,  'H1'),
     % <H1:DMT-SNSM_EFFECTIVE_RANGE_MPC.mean> = 21.37
     P_IN = 20.27;
     range = 21.37;
+    
+%     P_IN = 19.62;
+%     range = 18.87;
+%     t0 = 970073642;  % Oct 02 2010 16:53:47 UTC -- after the power outage
 end
 
 filename = sprintf('%s-STRAIN-%u.bin', ifo, t0);
@@ -41,7 +45,7 @@ h_planck = 6.62606896e-34; % J*s
 fd = fopen(filename, 'r');
 if fd < 0,
     fprintf('Getting data using NDS2...\n');
-    result = NDS2_GetData({[ifo ':DMT-STRAIN']; [ifo ':PSL-PWR_PWRSET']; ...
+    result = NDS2_GetData({[ifo ':LDAS-STRAIN']; [ifo ':PSL-PWR_PWRSET']; ...
         [ifo ':IOO-MC_PWR_IN']; [ifo ':DMT-SNSM_EFFECTIVE_RANGE_MPC.mean']}, ...
         t0, dur, server);
     
@@ -80,33 +84,36 @@ navg = 2 * length(result(1).data)/nfft;
 
 lambda = 1064e-9;             % wavelength [m]
 
-
-
 if strcmp(ifo, 'H1'),     
     rcp = 137;                % arm cavity phase gain      tradition
-    fc  = 85;                 % arm cavity pole            guess
-    gcr = sqrt(59);           % carrier recycling gain     ilog 2008-12-14           
+    fc  = 85.6;               % arm cavity pole            H1DARMparams_942450950.m
+    gcr = sqrt(36);           % carrier recycling gain     ilog 2008-12-14           
     input_eff =  ...          % input power efficiency     
        besselj(0,0.34)^2* ... % carrier fraction           ilog 2008-11-18
-                 0.776 * ...  % Input optics efficiency    ilog 2008-07-23
-                 0.935;       % coupling into IFO          LLO value
+                 0.82 * ...   % Input optics efficiency    LIGO-P1100056
+                 0.92;        % coupling into IFO          LLO value
     % output optics efficiency
+    if t0 < 965156415         % Power outage Aug 6, 2010   ilog 2010-09-08
+        omc_trans = 0.966;    % OMC transmission           ilog 2011-08-04
+    else
+        omc_trans = 0.66;     % OMC transmission           ilog 2011-08-04
+    end
     omc_mm = 0.70;            % OMC mode-matching          ilog 2010-07-19
-    output_eff = 0.98 * ...   % Output FI transmission     LLO value
-                 0.97 * ...   % AS port pick-off           LLO value
+    output_eff = 0.94 * ...   % Output FI trans (±0.02)    ilog 2008-08-04
+                 0.953 * ...  % AS port pick-off           ilog 2009-02-12
                  omc_mm * ... % OMC mode-matching         
-                 0.97 * ...   % OMC transmission           LLO value
+                 omc_trans * ...   % OMC transmission
                  0.97;        % OMC PD QE                  guess
     pwr_calib = 1;            % MC_PWR_IN calibration      
 elseif strcmp(ifo, 'L1'),    
     rcp = 137;                % arm cavity phase gain      tradition    
     fc = (85.1 + 82.3)/2;     % arm cavity pole [Hz]       ilog 2010-06-24
-    gcr = sqrt(43);           % carrier recycling gain     ??? 
+    gcr = sqrt(41);           % carrier recycling gain     ??? 
     % input optics efficiency         
     input_eff =  ...          
        besselj(0,0.33)^2* ... % carrier fraction           ilog 2009-06-09
-                 0.70 * ...   % Input optics efficiency    LIGO-G080490-00
-                 0.935;       % coupling into IFO          ilog 2008-10-11
+                 0.75 * ...   % Input optics efficiency    LIGO-P1100056
+                 0.92;        % coupling into IFO          LIGO-P1100056 
     % output optics efficiency
     output_eff = 0.9805 * ... % Output FI transmission     ilog 2008-08-17
                  0.972 * ...  % AS port pick-off           ilog 2009-05-11
