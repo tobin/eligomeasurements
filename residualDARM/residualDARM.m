@@ -35,12 +35,12 @@ else
    
     residual = sqrt(Pxx) ./ abs(S);     
     calibrated = residual .* abs(1 + G);
-    rms = ampSpectrumRMS(f.', residual.');  % this is in mattlib
     
     % Copy to output argument
     rslt.calibrated = calibrated;
     rslt.residual = residual;
-    rslt.rms = rms;
+    rslt.residualRMS =   ampSpectrumRMS(f.', residual.');
+    rslt.calibratedRMS = ampSpectrumRMS(f.', calibrated.');
     rslt.f = f;
 end
 
@@ -72,13 +72,14 @@ function [data, rate] = load_DARMERR_timeseries(ifo)
 server = 'ldas-pcdev1.ligo.caltech.edu:31200';
 % really, we would prefer to have a 'typical' time, but for now:
 t0 = 965543700;  % Aug 11 2010 06:34:45 UTC -- best L1 range
+%t0 = 968583300;  % Sep 15 2010 10:54:45 UTC
 dur = 128; 
 
 filename = sprintf('DARMERR-%s-%d-%d.mat', ifo, t0, dur);
 
 if ~exist(filename, 'file')
     fprintf('Getting %d s of data from t0=%d using NDS2...\n', dur, t0);
-    data = NDS2_GetData({[ifo ':LSC-DARM_ERR']}, t0, dur, server);
+    data = NDS2_GetData({[ifo ':LSC-DARM_ERR'], [ifo ':LSC-DARM_CTRL']}, t0, dur, server);
     save(filename, 'data');
 end
 load(filename, 'data');
