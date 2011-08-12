@@ -9,7 +9,7 @@
 
 dur = 128;       % duration of data to get [s]
     
-ifo = 'H1';
+ifo = 'L1';
 
 if strcmp(ifo, 'L1'),
     t0 = 965543700;  % Aug 11 2010 06:34:45 UTC -- best L1 range
@@ -27,15 +27,14 @@ elseif strcmp(ifo,  'H1'),
     P_IN = 20.27;
     range = 21.37;
     
-%     P_IN = 19.62;
-%     range = 18.87;
-%     t0 = 970073642;  % Oct 02 2010 16:53:47 UTC -- after the power outage
+    %  P_IN = 19.62;
+    % range = 18.87;
+    % t0 = 970073642;  % Oct 02 2010 16:53:47 UTC -- after the power outage
 end
 
 filename = sprintf('%s-STRAIN-%u.bin', ifo, t0);
 
 server = 'ldas-pcdev1.ligo.caltech.edu:31200';
-
 
 c = 299792458;  % m/s
 h_planck = 6.62606896e-34; % J*s
@@ -82,6 +81,15 @@ navg = 2 * length(result(1).data)/nfft;
 
 %% Plot it
 
+doUseFunnyUnits = true;       % plot in radians instead of meters?
+doAnnotateParams = false;     % write some parameters on the plot?
+doShowOnlyShotnoise = false;  % don't show the low-frequency region?
+doIncludeLegend = false;
+doUseCoolXTicks = true;
+doIncludeTitle = false;
+doZealousCropping = true;
+linewidth = 1;
+
 lambda = 1064e-9;             % wavelength [m]
 
 if strcmp(ifo, 'H1'),     
@@ -99,11 +107,14 @@ if strcmp(ifo, 'H1'),
         omc_trans = 0.66;     % OMC transmission           ilog 2011-08-04
     end
     omc_mm = 0.70;            % OMC mode-matching          ilog 2010-07-19
-    output_eff = 0.94 * ...   % Output FI trans (±0.02)    ilog 2008-08-04
-                 0.953 * ...  % AS port pick-off           ilog 2009-02-12
+    extra_loss = 0;
+    output_eff = 0.94   * ... % Output FI trans (±0.02)    ilog 2008-08-04
+                 0.953  * ... % AS port pick-off           ilog 2009-02-12
                  omc_mm * ... % OMC mode-matching         
                  omc_trans * ...   % OMC transmission
-                 0.97;        % OMC PD QE                  guess
+                 0.98   * ... % OMC PD QE                  ilog 2009-09-03
+                 (1 - extra_loss);
+             
     pwr_calib = 1;            % MC_PWR_IN calibration      
 elseif strcmp(ifo, 'L1'),    
     rcp = 137;                % arm cavity phase gain      tradition    
@@ -138,30 +149,84 @@ else
     color = [1,0,1];
 end
 
-loglog(result(1).f, 3995*sqrt(result(1).Pxx), 'linewidth', 2.5, 'color', color);
+if doUseFunnyUnits
+    yconversion = 2*pi/lambda;  % radians per meter
+    yunits = 'log10 radians per sqrt Hz';
+    ylims = [1e-13 1e-10];
+else
+    yconversion = 1;
+    yunits = 'meters per Hz^{1/2}';
+    ylims = [1e-20 1e-16];
+end
+
+close all
+loglog(result(1).f, yconversion * 3995 * sqrt(result(1).Pxx), 'linewidth', linewidth, 'color', color);
 hold all
-loglog(result(1).f, shot_noise_analytic, 'k--', 'linewidth', 2.5);
+loglog(result(1).f, yconversion * shot_noise_analytic, 'k--', 'linewidth', linewidth);
 hold off
-xlim([20 7444]);
-ylim([1e-20 1e-16]);
-xlabel('frequency [Hz]');
-ylabel('m/rtHz');
+if doShowOnlyShotnoise
+    xlim([400 7000]);
+else
+    xlim([40 7000]);
+end
+ylim(ylims);
+
+if doUseCoolXTicks
+    set(gca, 'XTickLabel', ...
+        cellfun(@(x) sprintf('%d Hz', x), num2cell(get(gca, 'XTick')), ...
+                'UniformOutput', false));
+    set(gca, 'YTickLabel', ...
+        cellfun(@(y) sprintf('%d', fix(log10(y))), num2cell(get(gca, 'YTick')), ...
+                'UniformOutput', false));
+else
+    xlabel('frequency [Hz]');
+end
+ylabel(yunits);
 
 t_matlab = (t0 - 15)/(60*60*24) + datenum('1980-01-06 00:00');
 grid on;
-legend(sprintf('%s UTC (%0.1f Mpc)', datestr(t_matlab), range), ...
-       sprintf('shot noise prediction with PIN = %0.1f W, Gcr = %0.0f', P_IN * pwr_calib, gcr^2));
-title(sprintf('%s displacement spectrum', ifo));
-% make the fonts bigger
-set([gca; findall(gca, 'Type','text')], 'FontSize', 16);
 
-if strcmp(ifo, 'H1'),
+if doIncludeLegend
+    legend(sprintf('%s UTC (%0.1f Mpc)', datestr(t_matlab), range), ...
+           sprintf('shot noise prediction with PIN = %0.1f W, Gcr = %0.0f', P_IN * pwr_calib, gcr^2));
+end
+
+if doIncludeTitle
+    title(sprintf('%s displacement spectrum', ifo));
+end
+
+fontsize = 8;
+set([gca; findall(gca, 'Type','text')], 'FontSize', fontsize);
+%set([gca; findall(gca, 'Type','text')], 'FontName', 'Times');
+
+if doAnnotateParams
     text(0.513382, 0.104736, ...
         sprintf('OMC MM = %0.2f\nOMC T = %0.2f', omc_mm, omc_trans), ...
         'fontsize', 24, 'units', 'normalized');
 end
 
-orient landscape
+
+c = cgrid();
+set(gca, 'units', 'inches')
+set(c, 'units', 'inches');
+columnwidth =  0.5 * 446.39996 / 72.26999;
+set(gcf, 'PaperSize', [11 8.5] * columnwidth / 11)
+set(gcf, 'PaperPosition', [0 0 get(gcf, 'PaperSize')]);
+
+newpos =  [(45/72.3) (20/72.3) (get(gcf, 'PaperSize') - [(50/72) (25/72)])];
+set(gca, 'Position', newpos);
+set(c, 'Position', newpos);
+% doZealousCropping = false;
+% if doZealousCropping
+%     set(gca, 'Position', get(gca, 'OuterPosition') - ...
+%        get(gca, 'TightInset') * [-1 0 1 0; 0 -1 0 1; 0 0 1 0; 0 0 0 1]);
+% end
+
+
+lgrid(c);
+
+%orient landscape
+
 print(gcf, '-dpdf', sprintf('%s-%u.pdf', ifo, t0));
 
 % %%
