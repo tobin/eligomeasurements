@@ -1,0 +1,12 @@
+This is the oscillator phase noise coupling data from Nicolas's SURF
+project, summer 2005.
+
+-------------------------------------------------------------------------------
+    Do you have the OPN coupling data from your SURF report in a
+    format that would be easy to include in the plot?  Is it the same
+    as the data plotted in Stefan's thesis?
+
+Attached, it's [frequency (Hz), magnitude (m/rad), phase
+(degrees)]. Data below 40Hz is bad coherence. Stefan seems to have
+more data points if you can ever get hands on his data.
+-------------------------------------------------------------------------------
