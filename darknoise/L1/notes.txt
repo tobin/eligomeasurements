@@ -1,0 +1,6 @@
+
+OMC dark noise
+
+FM1 + FM2 :  ref0   ref1
+FM1+2+3:     ref2   ref3
+FM1 + FM3 :  ref3   ref4
