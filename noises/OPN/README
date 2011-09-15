@@ -1,0 +1,64 @@
+Oscillator Phase Noise measurements
+
+-------------------------------------------------------------------------------
+2004-07-21
+
+Rupal's report:
+
+Frequency (Hz) Measured (rads/√Hz) Wenzel Spec (rads/√Hz)
+10             3*10-6                3*10-6
+100            8*10-8                1*10-7
+1000           6*10-9                1.8*10-8
+10000          4*10-9                7.9*10-9
+
+http://ilog.ligo-la.caltech.edu/ilog/pub/ilog.cgi?group=detector&date_to_view=07/21/2004&anchor_to_scroll_to=2004:07:21:18:12:02-amin
+
+-------------------------------------------------------------------------------
+2005-03-11
+
+Measurement made by Rai Weiss using two Wenzel oscillators.
+
+RaiW-1110522971.pdf - Rai's plot
+RaiW-1110525697.dat - Rai's data
+
+elog link: http://ilog.ligo-la.caltech.edu/ilog/pub/ilog.cgi?group=detector&date_to_view=03/11/2005&anchor_to_scroll_to=2005:03:11:00:36:11-RaiW
+
+-------------------------------------------------------------------------------
+2007-08-15
+
+Rupal and Valera measure the OPN in the PSL.
+
+Rupal reports: "[comparing] this data to that taken by Rai and Rupal
+in July 2004, we find that the phase noise is roughly 5-10 times
+greater now."
+
+elog link: http://ilog.ligo-la.caltech.edu/ilog/pub/ilog.cgi?group=detector&date_to_view=08/14/2007&anchor_to_scroll_to=2007:08:14:22:42:16-amin
+
+Valera adds some details the next day, reporting that the noise is
+actually within a factor of 2 of the old measurement:
+
+http://ilog.ligo-la.caltech.edu/ilog/pub/ilog.cgi?group=detector&date_to_view=08/18/2007&anchor_to_scroll_to=2007:08:18:15:57:49-valera
+
+Rana adds: From the Wenzel spec sheet, the SSB phase noise L(f) should be:
+
+-110 dBc/Hz   @  10 Hz
+-140 dBc/Hz   @ 100 Hz
+-160 dBc/Hz   @  1 kHz
+-165 dBc/Hz   @ 10 kHz
+
+-------------------------------------------------------------------------------
+2008-12-19
+
+Valera posted the data file from the previous round of phase noise measurements:
+
+valera-1229708489.txt
+
+http://ilog.ligo-la.caltech.edu/ilog/pub/ilog.cgi?group=detector&date_to_view=12/18/2008&anchor_to_scroll_to=2008:12:19:11:41:30-valera
+
+===============================================================================
+Oscillator Amplitude Noise
+
+Hartmut has an entry where he says that the Osc AM RIN is less than
+2e-8 at 100 Hz and < 8e-9 above 1 kHz:
+
+http://ilog.ligo-la.caltech.edu/ilog/pub/ilog.cgi?group=detector&date_to_view=04/19/2005&anchor_to_scroll_to=2005:04:19:16:14:23-HARTMUT
