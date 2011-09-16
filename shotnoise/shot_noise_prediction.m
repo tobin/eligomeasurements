@@ -1,3 +1,4 @@
+function [f, sn, darm] = shot_noise_prediction
 %% Shot-noise-limited sensitivity prediction
 % This script predicts the shot noise limited sensitivity of each detector,
 % based on the input power and measured input and output efficiencies.
@@ -81,7 +82,7 @@ navg = 2 * length(result(1).data)/nfft;
 
 %% Plot it
 
-doUseFunnyUnits = true;       % plot in radians instead of meters?
+doUseFunnyUnits = false;       % plot in radians instead of meters?
 doAnnotateParams = false;     % write some parameters on the plot?
 doShowOnlyShotnoise = false;  % don't show the low-frequency region?
 doIncludeLegend = false;
@@ -151,12 +152,20 @@ end
 
 if doUseFunnyUnits
     yconversion = 2*pi/lambda;  % radians per meter
-    yunits = 'log10 radians per sqrt Hz';
+    yunits = 'radians per Hz^{1/2}';
     ylims = [1e-13 1e-10];
 else
     yconversion = 1;
     yunits = 'meters per Hz^{1/2}';
     ylims = [1e-20 1e-16];
+end
+
+f = result(1).f;
+darm = 3995 * sqrt(result(1).Pxx);
+sn   = shot_noise_analytic;
+
+if nargout > 0
+    return
 end
 
 close all
@@ -175,9 +184,9 @@ if doUseCoolXTicks
     set(gca, 'XTickLabel', ...
         cellfun(@(x) sprintf('%d Hz', x), num2cell(get(gca, 'XTick')), ...
                 'UniformOutput', false));
-    set(gca, 'YTickLabel', ...
-        cellfun(@(y) sprintf('%d', fix(log10(y))), num2cell(get(gca, 'YTick')), ...
-                'UniformOutput', false));
+%     set(gca, 'YTickLabel', ...
+%         cellfun(@(y) sprintf('%d', fix(log10(y))), num2cell(get(gca, 'YTick')), ...
+%                 'UniformOutput', false));
 else
     xlabel('frequency [Hz]');
 end
@@ -195,7 +204,12 @@ if doIncludeTitle
     title(sprintf('%s displacement spectrum', ifo));
 end
 
-fontsize = 8;
+mode = 'thesis';
+if strcmp(mode, 'thesis')
+    fontsize = 10;
+else
+    fontsize = 8;
+end
 set([gca; findall(gca, 'Type','text')], 'FontSize', fontsize);
 %set([gca; findall(gca, 'Type','text')], 'FontName', 'Times');
 
@@ -208,14 +222,44 @@ end
 
 c = cgrid();
 set(gca, 'units', 'inches')
-set(c, 'units', 'inches');
-columnwidth =  0.5 * 446.39996 / 72.26999;
-set(gcf, 'PaperSize', [11 8.5] * columnwidth / 11)
+set(c,  'units', 'inches');
+
+pts_per_inch = 72.26999;
+if strcmp(mode, 'thesis')
+    columnwidth = 6.5;
+    height = columnwidth/ ((sqrt(5) + 1)/2);
+else
+    columnwidth =  0.5 * 446.39996 / pts_per_inch;
+    height = (8.5/11)*columnwidth;
+end
+
+margin_junk = 45 / pts_per_inch;
+
+if strcmp(ifo, 'H1') && ~strcmp(mode, 'thesis')
+    width = columnwidth - margin_junk / 2;
+else
+    width = columnwidth + margin_junk / 2;
+end
+
+set(gcf, 'PaperSize', [width height]);
 set(gcf, 'PaperPosition', [0 0 get(gcf, 'PaperSize')]);
 
-newpos =  [(45/72.3) (20/72.3) (get(gcf, 'PaperSize') - [(50/72) (25/72)])];
-set(gca, 'Position', newpos);
-set(c, 'Position', newpos);
+margin_lft = margin_junk;
+margin_bot = 15/pts_per_inch;
+margin_top =  8/pts_per_inch;
+margin_rgt =  1/pts_per_inch;
+if strcmp(ifo, 'H1') && ~strcmp(mode, 'thesis')
+    margin_lft = 0/pts_per_inch;
+else
+    margin_rgt = 5/pts_per_inch;
+end
+
+
+newpos =  [margin_lft margin_bot, ...
+     (get(gcf, 'PaperSize') - [(margin_lft + margin_rgt) (margin_top + margin_bot)])];
+set([c gca], 'Units', 'inches', ...
+              'Position', newpos);
+%          
 % doZealousCropping = false;
 % if doZealousCropping
 %     set(gca, 'Position', get(gca, 'OuterPosition') - ...
@@ -227,7 +271,8 @@ lgrid(c);
 
 %orient landscape
 
-print(gcf, '-dpdf', sprintf('%s-%u.pdf', ifo, t0));
+%print -dpdf foo.pdf
+print(gcf, '-dpdf', sprintf('%s-%u-%s.pdf', ifo, t0, mode));
 
 % %%
 % semilogx(result(1).f, db(3995*sqrt(result(1).Pxx) ./ shot_noise_analytic));
